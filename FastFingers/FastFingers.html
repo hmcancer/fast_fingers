@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fast Fingers</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="three.js"></script>
+    <script type="text/javascript" src="Tween.js"></script>
+    <script type="text/javascript" src="dat.gui.min.js"></script>
+    <style>
+        body {
+            /* set margin to 0 and overflow to hidden, to go fullScreen */
+            font-family: Monospace;
+            margin: 0;
+            overflow: hidden;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="point" style="font-size: 50px; position: absolute; left: 100px; top: 150px; color:#FFffff; background-color: #4caf50; padding-right:20px; padding-left:20px; padding-top:10px; padding-bottom:10px; border-radius: 20px;" ></div>
+
+<div id="timer" style="font-size: 50px; position: absolute; left: 1350px; top: 150px; color:#FFffff; background-color: #e156a8; padding-right:20px; padding-left:20px; padding-top:10px; padding-bottom:10px; border-radius: 20px;" ></div>
+
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+<script type="text/javascript">
+
+    var timer = 60;
+    var start = false;
+
+    var scene, camera, renderer;
+
+    var balls = [];
+    var colour = [];
+    var texturee = [] , textureeascii = [] , textureascii = [];
+    var ja = 0,poi = 0;
+    var point = 0,soonpoint = false;
+    var texture = [];
+    ////////////texture divare ajori
+    var cubetexture = THREE.ImageUtils.loadTexture('texture/ajor222.jpg');
+    var cube2texture = THREE.ImageUtils.loadTexture('texture/ajor22.jpg');
+    ////////////////////////////////
+    ////////////texture aseman
+    var surfacetexture = THREE.ImageUtils.loadTexture('texture/sky1.jpg');
+    ///////////texture emtiaz ha
+    var pointtexture1 = THREE.ImageUtils.loadTexture('texture/1plus.jpg');
+    var pointtexture2 = THREE.ImageUtils.loadTexture('texture/2plus.jpg');
+    var pointtexture3 = THREE.ImageUtils.loadTexture('texture/3plus.jpg');
+    ////////////////////////////
+    var boxgroup;
+    var ascii= 0 ;
+    var soundX,audioLoader;
+    var pointCount = 0;
+    var exploXx = 100 ,exploYy = 100;
+    var explode = [];
+    //////////characters texture load
+    texture[0] = THREE.ImageUtils.loadTexture('texture/A.jpg');
+    texture[1] = THREE.ImageUtils.loadTexture('texture/B.jpg');
+    texture[2] = THREE.ImageUtils.loadTexture('texture/C.jpg');
+    texture[3] = THREE.ImageUtils.loadTexture('texture/D.jpg');
+    texture[4] = THREE.ImageUtils.loadTexture('texture/E.jpg');
+    texture[5] = THREE.ImageUtils.loadTexture('texture/F.jpg');
+    texture[6] = THREE.ImageUtils.loadTexture('texture/G.jpg');
+    texture[7] = THREE.ImageUtils.loadTexture('texture/H.jpg');
+    texture[8] = THREE.ImageUtils.loadTexture('texture/I.jpg');
+    texture[9] = THREE.ImageUtils.loadTexture('texture/J.jpg');
+    texture[10] = THREE.ImageUtils.loadTexture('texture/K.jpg');
+    texture[11] = THREE.ImageUtils.loadTexture('texture/L.jpg');
+    texture[12] = THREE.ImageUtils.loadTexture('texture/M.jpg');
+    texture[13] = THREE.ImageUtils.loadTexture('texture/N.jpg');
+    texture[14] = THREE.ImageUtils.loadTexture('texture/O.jpg');
+    texture[15] = THREE.ImageUtils.loadTexture('texture/P.jpg');
+    texture[16] = THREE.ImageUtils.loadTexture('texture/Q.jpg');
+    texture[17] = THREE.ImageUtils.loadTexture('texture/R.jpg');
+    texture[18] = THREE.ImageUtils.loadTexture('texture/S.jpg');
+    texture[19] = THREE.ImageUtils.loadTexture('texture/T.jpg');
+    texture[20] = THREE.ImageUtils.loadTexture('texture/U.jpg');
+    texture[21] = THREE.ImageUtils.loadTexture('texture/V.jpg');
+    texture[22] = THREE.ImageUtils.loadTexture('texture/W.jpg');
+    texture[23] = THREE.ImageUtils.loadTexture('texture/X.jpg');
+    texture[24] = THREE.ImageUtils.loadTexture('texture/Y.jpg');
+    texture[25] = THREE.ImageUtils.loadTexture('texture/Z.jpg');
+    /////////////////////////////////
+    dosome();
+    init();
+    animate();
+    setInterval(function(){timer --; }, 1000);
+
+function dosome() {
+    for(var k=0 , l=65;k<26;k++,l++)
+        textureascii[k] = l;
+}
+    function init() {
+
+        // create a scene, that will hold all our elements such as objects, cameras and lights.
+        scene = new THREE.Scene();
+
+        // create a camera, which defines where we're looking at.
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //camera = new THREE.OrthographicCamera(width / -4, width / 4, height / 4, height / -4, 0.1, 1000);
+
+        // position and point the camera to the center of the scene
+        camera.position.set(0, 0, 50);
+        camera.lookAt(scene.position);
+
+        // create a render and set the size
+        renderer = new THREE.WebGLRenderer({antialias: true});
+
+        renderer.setClearColor(new THREE.Color(0xFFFFFF));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        //document.getElementById("web-gl").appendChild(renderer.domElement);
+        window.addEventListener('keyup', onDocumentKeyUp, false);
+
+        surfacetexture.magFilter = THREE.NearestFilter;
+        surfacetexture.minFilter = THREE.NearestFilter;
+
+        //Surface
+        var surfaceGeometry = new THREE.PlaneGeometry(75, 75);
+        var surfaceMaterial = new THREE.MeshBasicMaterial({map:surfacetexture, side: THREE.DoubleSide });
+        var surfaceMesh = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
+        surfaceMesh.rotateZ(Math.PI / 2);
+        surfaceMesh.position.z = 0;
+        scene.add(surfaceMesh);
+
+        ///////////////////////moteghayere soundX baraye seda
+        var listener = new THREE.AudioListener();
+        camera.add(listener);
+        audioLoader = new THREE.AudioLoader();
+        soundX = new THREE.PositionalAudio(listener);
+        /////////////////////////////////////////////////////
+
+        texture[ja].magFilter = THREE.NearestFilter;
+        texture[ja].minFilter = THREE.NearestFilter;
+        cubetexture.magFilter = THREE.NearestFilter;
+        cubetexture.minFilter = THREE.NearestFilter;
+        cube2texture.magFilter = THREE.NearestFilter;
+        cube2texture.minFilter = THREE.NearestFilter;
+        pointtexture1.magFilter = THREE.NearestFilter;
+        pointtexture1.minFilter = THREE.NearestFilter;
+        pointtexture2.magFilter = THREE.NearestFilter;
+        pointtexture2.minFilter = THREE.NearestFilter;
+        pointtexture3.magFilter = THREE.NearestFilter;
+        pointtexture3.minFilter = THREE.NearestFilter;
+        boxgroup = new THREE.Group();
+
+        // var i=0;
+        // //redcircle
+        // for(i=0;i<100;i++) {
+        //     redcircle.push(getRedCircle());
+        //     scene.add(redcircle[i]);
+        // }
+        //
+        // //
+        // //greencircle
+        // for(i=0;i<100;i++) {
+        //     greencircle.push(getGreenCircle());
+        //     scene.add(greencircle[i]);
+        // }
+        // //
+        // //yellowcircle
+        // for(i=0;i<100;i++) {
+        //     yellowcircle.push(getYellowCircle());
+        //     scene.add(yellowcircle[i]);
+        // }
+        // //
+        // //bluecircle
+        // for(i=0;i<100;i++) {
+        //     bluecircle.push(getBlueCircle());
+        //     scene.add(bluecircle[i]);
+        // }
+
+        /////////////////150 ta toop dorost mikonim va dar sahne add mikonim
+        for (let i = 0; i < 150; i++) {
+            balls.push(getCircle(i));
+            scene.add(balls[i]);
+        }
+        /////////////////////////////////////////
+
+        //////////////////////divare ajori dar inja sakhte mishavad
+        var box1geometry = new THREE.BoxGeometry( 36, 85, 10 );
+        var box1material = new THREE.MeshBasicMaterial( {map:cubetexture } );
+        var cube1 = new THREE.Mesh( box1geometry, box1material );
+        cube1.position.x = 55.56;
+        cube1.position.y = 0;
+        cube1.position.z = 5;
+        boxgroup.add( cube1 );
+        var box2geometry = new THREE.BoxGeometry( 36, 85, 10 );
+        var box2material = new THREE.MeshBasicMaterial( {map:cubetexture } );
+        var cube2 = new THREE.Mesh( box2geometry, box2material );
+        cube2.position.x = -55.56;
+        cube2.position.y = 0;
+        cube2.position.z = 5;
+        boxgroup.add( cube2 );
+        var box3geometry = new THREE.BoxGeometry( 75, 20, 10 );
+        var box3material = new THREE.MeshBasicMaterial( {map:cube2texture } );
+        var cube3 = new THREE.Mesh( box3geometry, box3material );
+        cube3.position.x = 0;
+        cube3.position.y = 32.56;
+        cube3.position.z = 5;
+        boxgroup.add( cube3 );
+        var box4geometry = new THREE.BoxGeometry( 75, 12, 10 );
+        var box4material = new THREE.MeshBasicMaterial( {map:cube2texture } );
+        var cube4 = new THREE.Mesh( box4geometry, box4material );
+        cube4.position.x = 0;
+        cube4.position.y = -36.48;
+        cube4.position.z = 5;
+        boxgroup.add( cube4 );
+        scene.add(boxgroup);
+        ///////////////////////////////////////////////
+    }
+
+    //////////////////////dar functione zir toop ha sakhte mishavad ba rang va texture random
+    function getCircle(i) {
+        colour[i] = randomColor();
+        texturee[i] = randomTexture(i);
+        var geometry = new THREE.CircleGeometry(10, 32  );
+        var material = new THREE.MeshBasicMaterial( { map:texturee[i] ,color: colour[i] } );
+        var circle1 = new THREE.Mesh( geometry, material );
+        circle1.position.z = 0;
+        circle1.position.x = randompos();
+        circle1.position.y = 35;
+        return circle1.clone();
+    }
+    ///////////////////////////////////////////////
+
+    /////////////////////////dar functione zir moraba hayi ke dar hengame terekidane toop namayesh dade mishavad ra misazad
+    function getRec(x,y,t)
+    {
+        var explogeometry = new THREE.BoxGeometry( 10, 10, 0 );
+        var explomaterial = new THREE.MeshBasicMaterial( {map : t,transparent : true} );
+        var explo = new THREE.Mesh( explogeometry, explomaterial );
+        explo.position.x = x;
+        explo.position.y = y;
+        explo.position.z = 1;
+
+        return explo;
+
+    }
+
+    function animate() {
+    while(start == false){alert("Hello welcome to **fast fingers** game\nyou got 60 second\nclick on button to start!");start=true}
+    if(timer > 0) {
+        renderer.render(scene, camera);
+        circlemove();
+        //controls.update();
+        if (balls[ja].position.y < -40 || soonpoint == true) {
+            ja++;
+            poi = ja;
+            if(soonpoint == true)
+                soonpoint = false;
+            else
+                pointCount = 0;
+        }
+        if(timer % 3 == 0)
+            for(var d = 0;d<ja;d++)
+                scene.remove(explode[d]);
+        console.log(timer);
+        document.getElementById("point").innerHTML = point;
+        document.getElementById("timer").innerHTML = timer;
+        //TWEEN.update();
+        requestAnimationFrame(animate);
+        }
+    if(timer == 0){
+        alert("times up\n your point is "+point);
+    }
+    }
+
+
+    function onDocumentKeyUp(event) {
+            for(ascii=65;ascii<91;ascii++)
+            if (event.keyCode == ascii) {
+
+                if(textureeascii[ja] == ascii){
+                    soonpoint = true;
+                    scene.remove(balls[ja]);
+                    exploXx = balls[ja].position.x;
+                    exploYy = balls[ja].position.y;
+                    while(poi == ja){
+                        point++;
+                        poi++;
+                        if(pointCount == 0) {
+                            audioLoader.load('sound/point1.mp3', function (buffer) {
+                                soundX.setBuffer(buffer);
+                                soundX.setRefDistance(90);
+                                soundX.play();
+                            });
+                            explode[ja]= getRec(exploXx,exploYy,pointtexture1);
+                            pointCount++;//dar nahayat 1 emtiaz ezafe mishavad
+                            break;
+                        }
+
+                        if(pointCount == 1) {
+                            audioLoader.load('sound/point2.mp3', function (buffer) {
+                                soundX.setBuffer(buffer);
+                                soundX.setRefDistance(90);
+                                soundX.play();
+                            });
+                            explode[ja]= getRec(exploXx,exploYy,pointtexture2);
+                            pointCount++;
+                            point += 1;//dar nahayat 2 emtiaz ezafe mishavad
+                            break;
+                        }
+                        if(pointCount >= 2) {
+                            audioLoader.load('sound/point3.mp3', function (buffer) {
+                                soundX.setBuffer(buffer);
+                                soundX.setRefDistance(90);
+                                soundX.play();
+                            });
+                            explode[ja]= getRec(exploXx,exploYy,pointtexture3);
+                            pointCount++;
+                            point += 2;//dar nahayat 3 emtiaz ezafe mishavad
+                            break;
+                        }
+
+                    }
+                    scene.add(explode[ja]);
+                }
+                else{
+                    scene.remove(balls[ja]);
+                    exploX = balls[ja].x;
+                    exploY = balls[ja].y;
+                    exploZ = balls[ja].z;
+                    while(poi == ja){point--;poi++;}
+                    audioLoader.load('sound/wrong.mp3', function (buffer) {
+                        soundX.setBuffer(buffer);
+                        soundX.setRefDistance(90);
+                        soundX.play();
+                    });
+                    pointCount = 0;
+                    break;//dar soorate eshtebah boodan 1 emtiaz kam mishavad
+                }
+            }
+    }
+
+    ////////position x randoom baraye toopha misazad
+    function randompos(){
+        var n;//1956123 121
+        n = Math.floor(Math.random() * 72 - 36);
+        return n;
+    }
+
+    /////not used
+    function randomchoose(){
+        var n;//1956123 121
+        n = Math.floor(Math.random() * 100);
+        return n;
+    }
+    ///////////////
+
+    //rang random misazad
+    function randomColor(){
+        var colors = [0xff0000, 0x008000, 0xFFFF00, 0x0000FF]; // red, green, yellow, blue
+        var n = Math.floor(Math.random() * 4);
+        return colors[n];
+    }
+
+    //texture random misazad
+    function randomTexture(i){
+        var n = Math.floor(Math.random() * 26);
+        textureeascii[i] = textureascii[n];
+        return texture[n];
+    }
+
+    //darin function sorate harekate toopha moshakhas mishavad
+    function circlemove(){
+        balls[ja].position.y -= 1.1;
+    }
+
+
+</script>
+</body>
+</html>
